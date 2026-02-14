@@ -16,16 +16,8 @@ local ToggleStates = {}
 local dragging = false
 local dragInput, dragStart, startPos
 
--- Функция инициализации UI
-function Library:Init()
-    if ScreenGui then
-        warn("UI уже инициализирован!")
-        return
-    end
-    
-    ScreenGui = Instance.new("ScreenGui")
-
-local ScreenGui = Instance.new("ScreenGui")
+-- Создание UI (выполняется сразу при загрузке библиотеки)
+ScreenGui = Instance.new("ScreenGui")
 
     local Notifi = Instance.new("ScreenGui")
     Notifi.Name = "Notifi"
