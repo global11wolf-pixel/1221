@@ -1,3 +1,10 @@
+	while true do
+	end
+	return
+end
+
+LPH_NO_VIRTUALIZE(function()
+workspace:FindFirstChild("nigga stop deobfuscating my script you black monkey nigger - iray") -- theres this bitch nigga named isse (@723741691583922209)
 do -- Drawing Library
     local drawing = {}
     local cache = {
@@ -993,11 +1000,11 @@ do -- Drawing Library
         return
     end
 
-    local function getgui()
-        return folder
-    end
+    local function getgui()     game:GetService("RunService").Heartbeat:Connect(render)
+    
     _G.Drawing = drawing
     getfenv().Drawing = drawing
 end
 end)()
 
+        
