@@ -1000,11 +1000,16 @@ do -- Drawing Library
         return
     end
 
-    local function getgui()     game:GetService("RunService").Heartbeat:Connect(render)
-    
-    _G.Drawing = drawing
-    getfenv().Drawing = drawing
+    local function getgui()
+    return folder
+end
+
+game:GetService("RunService").Heartbeat:Connect(render)
+
+_G.Drawing = drawing
+getfenv().Drawing = drawing
 end
 end)()
+
 
         
