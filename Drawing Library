@@ -996,4 +996,8 @@ do -- Drawing Library
     local function getgui()
         return folder
     end
+    _G.Drawing = drawing
+    getfenv().Drawing = drawing
+end
+end)()
 
