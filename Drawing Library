@@ -943,6 +943,27 @@ for tabName, content in pairs(tabContents) do
         content.right.Parent = Frame
         content.right.Visible = false
     end
+    
+    -- Add UIListLayout to all columns for automatic positioning
+    for _, columnName in ipairs({"left", "middle", "right"}) do
+        local column = content[columnName]
+        if column then
+            -- Remove old template elements
+            for _, child in ipairs(column:GetChildren()) do
+                if child.Name == "button folder" or child:IsA("Folder") then
+                    child:Destroy()
+                end
+            end
+            
+            -- Add UIListLayout for automatic vertical stacking
+            local listLayout = Instance.new("UIListLayout")
+            listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            listLayout.Padding = UDim.new(0, 5)
+            listLayout.FillDirection = Enum.FillDirection.Vertical
+            listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+            listLayout.Parent = column
+        end
+    end
 end
 
 -- Tab switching
@@ -993,7 +1014,7 @@ function Library:CreateToggle(tab, column, name, default, callback)
     
     local toggleZone = Instance.new("Frame")
     toggleZone.Name = "ToggleZone"
-    toggleZone.Size = UDim2.new(0, 129, 0, 25)
+    toggleZone.Size = UDim2.new(1, -10, 0, 25)
     toggleZone.BackgroundTransparency = 1
     toggleZone.Parent = parent
     
@@ -1071,6 +1092,7 @@ function Library:CreateSlider(tab, column, name, min, max, default, callback)
     if not parent then return end
     
     local sliderZone = SliderZone:Clone()
+    sliderZone.Size = UDim2.new(1, -10, 0, 30)
     sliderZone.Parent = parent
     sliderZone.Visible = true
     
@@ -1148,6 +1170,7 @@ function Library:CreateBind(tab, column, name, default, callback)
     if not parent then return end
     
     local bindZone = BindZone:Clone()
+    bindZone.Size = UDim2.new(1, -10, 0, 30)
     bindZone.Parent = parent
     bindZone.Visible = true
     
@@ -1206,6 +1229,7 @@ function Library:CreateInput(tab, column, name, default, callback)
     if not parent then return end
     
     local inputZone = InputZone:Clone()
+    inputZone.Size = UDim2.new(1, -10, 0, 40)
     inputZone.Parent = parent
     inputZone.Visible = true
     
@@ -1252,6 +1276,7 @@ function Library:CreateDropdown(tab, column, name, options, default, callback)
     if not parent then return end
     
     local dropdown = button_Dropdown:Clone()
+    dropdown.Size = UDim2.new(1, -10, 0, 69)
     dropdown.Parent = parent
     dropdown.Visible = true
     
@@ -1321,7 +1346,212 @@ function Library:CreateDropdown(tab, column, name, options, default, callback)
     }
 end
 
+-- Notification System
+local notificationQueue = {}
+local notificationCount = 0
+
+function Library:CreateNotification(text, duration)
+    duration = duration or 3
+    
+    local notification = Notification1:Clone()
+    notification.Name = "Notification" .. notificationCount
+    notification.Parent = NotifiList
+    notification.Visible = true
+    
+    local notifiText = notification:FindFirstChild("NotifiText")
+    if notifiText then
+        notifiText.Text = text
+    end
+    
+    -- Start position (off screen right)
+    notification.Position = UDim2.new(1.2, 0, 0, notificationCount * 30)
+    
+    -- Slide in animation
+    local slideIn = TweenService:Create(
+        notification,
+        TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+        {Position = UDim2.new(0, 0, 0, notificationCount * 30)}
+    )
+    
+    slideIn:Play()
+    
+    notificationCount = notificationCount + 1
+    table.insert(notificationQueue, notification)
+    
+    -- Auto remove after duration
+    task.delay(duration, function()
+        -- Slide out animation
+        local slideOut = TweenService:Create(
+            notification,
+            TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+            {Position = UDim2.new(1.2, 0, 0, notificationCount * 30)}
+        )
+        
+        slideOut:Play()
+        slideOut.Completed:Connect(function()
+            notification:Destroy()
+            
+            -- Remove from queue
+            for i, notif in ipairs(notificationQueue) do
+                if notif == notification then
+                    table.remove(notificationQueue, i)
+                    break
+                end
+            end
+            
+            -- Reposition remaining notifications
+            for i, notif in ipairs(notificationQueue) do
+                TweenService:Create(
+                    notif,
+                    TweenInfo.new(0.3),
+                    {Position = UDim2.new(0, 0, 0, (i - 1) * 30)}
+                ):Play()
+            end
+            
+            notificationCount = math.max(0, notificationCount - 1)
+        end)
+    end)
+end
+
+-- HotKey System
+local hotkeys = {}
+local hotkeyCount = 0
+
+function Library:CreateHotKey(name, key, callback)
+    local hotkey = {
+        name = name,
+        key = key,
+        callback = callback,
+        enabled = false
+    }
+    
+    table.insert(hotkeys, hotkey)
+    
+    -- Create UI element
+    local hotkeyFrame = HotKey1:Clone()
+    hotkeyFrame.Name = "HotKey" .. hotkeyCount
+    hotkeyFrame.Parent = MainFrame
+    hotkeyFrame.Position = UDim2.new(0, 0, 0.21 + (hotkeyCount * 0.22), 0)
+    hotkeyFrame.Visible = true
+    
+    local functionName = hotkeyFrame:FindFirstChild("FunctionName")
+    if functionName then
+        functionName.Text = name
+    end
+    
+    local keyLabel = hotkeyFrame:FindFirstChild("Key")
+    if keyLabel then
+        keyLabel.Text = key
+    end
+    
+    hotkeyCount = hotkeyCount + 1
+    
+    -- Adjust MainFrame height
+    MainFrame.Size = UDim2.new(0, 200, 0, 100 + (hotkeyCount * 22))
+    
+    return {
+        SetKey = function(newKey)
+            hotkey.key = newKey
+            if keyLabel then
+                keyLabel.Text = newKey
+            end
+        end,
+        Remove = function()
+            hotkeyFrame:Destroy()
+            for i, hk in ipairs(hotkeys) do
+                if hk == hotkey then
+                    table.remove(hotkeys, i)
+                    break
+                end
+            end
+        end
+    }
+end
+
+-- Listen for hotkey presses
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        local keyName = input.KeyCode.Name
+        
+        for _, hotkey in ipairs(hotkeys) do
+            if hotkey.key == keyName and hotkey.callback then
+                hotkey.enabled = not hotkey.enabled
+                hotkey.callback(hotkey.enabled)
+                
+                -- Show notification
+                Library:CreateNotification(hotkey.name .. " " .. (hotkey.enabled and "Enabled" or "Disabled"), 2)
+            end
+        end
+    end
+end)
+
+-- Watermark update function
+function Library:SetWatermark(text)
+    local watermarkText = watermark:FindFirstChild("TextLabel")
+    if watermarkText then
+        watermarkText.Text = text
+    end
+end
+
+-- Menu toggle
+local menuVisible = true
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.Insert then
+        menuVisible = not menuVisible
+        main_gui.Visible = menuVisible
+    end
+end)
+
 -- Set default tab
 switchTab("aim")
+
+-- ===== ПРИМЕР ИСПОЛЬЗОВАНИЯ =====
+-- Раскомментируй код ниже, чтобы добавить элементы в меню
+
+--[[
+-- AIMBOT TAB
+Library:CreateToggle("aim", "left", "Enable Aimbot", false, function(state)
+    print("Aimbot:", state)
+end)
+
+Library:CreateSlider("aim", "left", "FOV", 0, 360, 90, function(value)
+    print("FOV:", value)
+end)
+
+Library:CreateBind("aim", "middle", "Aimbot Key", "E", function(key)
+    print("Key:", key)
+end)
+
+-- VISUALS TAB
+Library:CreateToggle("visuals", "left", "ESP", false, function(state)
+    print("ESP:", state)
+end)
+
+Library:CreateDropdown("visuals", "left", "ESP Type", {"Box", "Skeleton", "Chams"}, "Box", function(option)
+    print("ESP Type:", option)
+end)
+
+-- MISC TAB
+Library:CreateToggle("misc", "left", "Fly", false, function(state)
+    print("Fly:", state)
+end)
+
+Library:CreateSlider("misc", "left", "Speed", 16, 100, 16, function(value)
+    print("Speed:", value)
+end)
+
+-- HOTKEYS
+Library:CreateHotKey("Aimbot", "E", function(enabled)
+    print("Aimbot:", enabled)
+end)
+
+-- NOTIFICATIONS
+Library:CreateNotification("Script loaded!", 3)
+
+-- WATERMARK
+Library:SetWatermark("LUB UI v1.0 | " .. Player.Name)
+]]
 
 return Library
