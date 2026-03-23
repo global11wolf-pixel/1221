@@ -44,7 +44,10 @@ end
 
 local EXECUTOR_NAME = GetExecutor()
 
--- Check if executor is supported
+-- Debug output
+print("[Library] Detected Executor:", EXECUTOR_NAME)
+
+-- Check if executor is supported (optional warning)
 local function IsExecutorSupported()
     for _, supported in ipairs(SUPPORTED_EXECUTORS) do
         if EXECUTOR_NAME == supported then
@@ -55,8 +58,9 @@ local function IsExecutorSupported()
 end
 
 if not IsExecutorSupported() then
-    Player:Kick(`[Library] Unsupported Executor: {EXECUTOR_NAME}\n\nSupported: Wave, Swift, Velocity, Potassium, Seliware, Volcano, Volt`)
-    return
+    warn(`[Library] Warning: Executor '{EXECUTOR_NAME}' is not officially supported. Supported: Wave, Swift, Velocity, Potassium, Seliware, Volcano, Volt`)
+    warn("[Library] The script may have undefined behavior or result in a ban!")
+    -- Don't kick, just warn
 end
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -1853,14 +1857,20 @@ local function CreateTextbox(parent, config, column)
         self.Value = value
         textboxInput.Text = value
     end
-    
-    return Textbox
-end
-
 -- Library API
 function Library:CreateWindow(config)
     config = config or {}
     local windowName = config.Name or "Fluent UI"
+    
+    -- Update watermark with auto-detected executor
+    local watermarkText = ScreenGui.menu.hud.watermark.TextLabel
+    local executorName = config.Executor or EXECUTOR_NAME
+    local newText = windowName .. " | " .. (config.Version or "v1.0") .. " | Exec: " .. executorName
+    
+    print("[Library] Updating watermark:", newText)
+    print("[Library] Executor name:", executorName)
+    
+    watermarkText.Text = newText
     
     -- Update watermark with auto-detected executor
     local watermarkText = ScreenGui.menu.hud.watermark.TextLabel
@@ -1908,15 +1918,19 @@ function Library:CreateWindow(config)
             
             -- Update tab name
             if nameLabel and tabName then
-                nameLabel.Text = tabName
+                pcall(function()
+                    nameLabel.Text = tabName
+                end)
             end
             
             -- Update icon if provided
             if iconId and nameLabel then
-                local iconButton = nameLabel:FindFirstChild("ImageButton") or nameLabel:FindFirstChild("icon_tab")
-                if iconButton and iconButton:IsA("ImageButton") then
-                    iconButton.Image = "rbxassetid://" .. tostring(iconId)
-                end
+                pcall(function()
+                    local iconButton = nameLabel:FindFirstChild("ImageButton") or nameLabel:FindFirstChild("icon_tab")
+                    if iconButton and iconButton:IsA("ImageButton") then
+                        iconButton.Image = "rbxassetid://" .. tostring(iconId)
+                    end
+                end)
             end
         end
         
@@ -1932,10 +1946,12 @@ function Library:CreateWindow(config)
                 right = {}
             }
         else
-            -- Update name if tab already exists
-            tabContents[tabType].Name = tabName
-        end
-        
+        -- Update column names
+        pcall(function()
+            contentFrames.left["the name of the mini tab"]["Text_the name of the mini tab"].Text = tabName
+            contentFrames.middle["the name of the mini tab"]["Text_the name of the mini tab"].Text = tabName
+            contentFrames.right["the name of the mini tab"]["Text_the name of the mini tab"].Text = tabName
+        end)
         -- Update column names
         contentFrames.left["the name of the mini tab"]["Text_the name of the mini tab"].Text = tabName
         contentFrames.middle["the name of the mini tab"]["Text_the name of the mini tab"].Text = tabName
