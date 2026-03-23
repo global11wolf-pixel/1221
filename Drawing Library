@@ -1,10 +1,15 @@
 -- GUI Library by FelSSJ
 -- Usage: local Library = loadstring(game:HttpGet("your_url"))()
+-- Version: 1.0.1
+
+print("[Library] Loading lub_ui library v1.0.1...")
 
 local Library = {}
 local Player = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+
+print("[Library] Services loaded successfully")
 
 -- Supported executors
 local SUPPORTED_EXECUTORS = {
