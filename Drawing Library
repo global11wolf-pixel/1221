@@ -1037,8 +1037,15 @@ function Library:CreateWindow(config)
     
     -- Update watermark
     local success, err = pcall(function()
-        local watermarkText = ScreenGui.menu.hud.watermark.TextLabel_2
-        watermarkText.Text = windowName .. " | " .. (config.Version or "v1.0") .. " | Exec: " .. executorName
+        local watermarkFrame = ScreenGui.menu.hud.watermark
+        local watermarkText = watermarkFrame:FindFirstChildOfClass("TextLabel")
+        
+        if watermarkText then
+            watermarkText.Text = windowName .. " | " .. (config.Version or "v1.0") .. " | Exec: " .. executorName
+            print("[Library] Watermark updated successfully!")
+        else
+            warn("[Library] TextLabel not found in watermark")
+        end
     end)
     
     if not success then
