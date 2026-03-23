@@ -60,7 +60,6 @@ end
 
 local EXECUTOR_NAME = GetExecutor()
 print("[Library] Detected Executor:", EXECUTOR_NAME)
-
 -- Check if executor is supported (optional warning)
 local function IsExecutorSupported()
     for _, supported in ipairs(SUPPORTED_EXECUTORS) do
