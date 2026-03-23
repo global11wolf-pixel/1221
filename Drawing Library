@@ -1091,55 +1091,93 @@ function Library:CreateSlider(tab, column, name, min, max, default, callback)
     local parent = tabContent[column]
     if not parent then return end
     
-    local sliderZone = SliderZone:Clone()
-    sliderZone.Size = UDim2.new(1, -10, 0, 30)
+    local sliderZone = Instance.new("Frame")
+    sliderZone.Name = "SliderZone"
+    sliderZone.Size = UDim2.new(1, -10, 0, 35)
+    sliderZone.BackgroundTransparency = 1
     sliderZone.Parent = parent
-    sliderZone.Visible = true
     
-    local sliderName = sliderZone:FindFirstChild("SliderName")
-    if sliderName then sliderName.Text = name end
+    local sliderName = Instance.new("TextLabel")
+    sliderName.Name = "SliderName"
+    sliderName.Size = UDim2.new(0, 80, 0, 15)
+    sliderName.Position = UDim2.new(0, 0, 0, 0)
+    sliderName.BackgroundTransparency = 1
+    sliderName.Text = name
+    sliderName.TextColor3 = Colors.Text
+    sliderName.TextSize = 12
+    sliderName.Font = Enum.Font.SourceSansBold
+    sliderName.TextXAlignment = Enum.TextXAlignment.Left
+    sliderName.Parent = sliderZone
     
-    local sliderLine = sliderZone:FindFirstChild("SliderLine")
-    local sliderHandle = sliderLine and sliderLine:FindFirstChild("Frame")
-    local sliderValue = sliderZone:FindFirstChild("SliderValue")
-    local valueText = sliderValue and sliderValue:FindFirstChild("TextLabel")
+    local sliderLine = Instance.new("Frame")
+    sliderLine.Name = "SliderLine"
+    sliderLine.Size = UDim2.new(0.6, 0, 0, 4)
+    sliderLine.Position = UDim2.new(0, 0, 0, 20)
+    sliderLine.BackgroundColor3 = Colors.Background
+    sliderLine.Parent = sliderZone
+    
+    local lineCorner = Instance.new("UICorner")
+    lineCorner.Parent = sliderLine
+    
+    local lineStroke = Instance.new("UIStroke")
+    lineStroke.Parent = sliderLine
+    
+    local sliderHandle = Instance.new("Frame")
+    sliderHandle.Size = UDim2.new(0, 10, 0, 10)
+    sliderHandle.Position = UDim2.new(0.5, 0, -0.75, 0)
+    sliderHandle.BackgroundColor3 = Colors.Active
+    sliderHandle.Parent = sliderLine
+    
+    local handleCorner = Instance.new("UICorner")
+    handleCorner.CornerRadius = UDim.new(1, 0)
+    handleCorner.Parent = sliderHandle
+    
+    local sliderValue = Instance.new("Frame")
+    sliderValue.Name = "SliderValue"
+    sliderValue.Size = UDim2.new(0, 35, 0, 15)
+    sliderValue.Position = UDim2.new(0.75, 0, 0, 0)
+    sliderValue.BackgroundColor3 = Colors.Background
+    sliderValue.Parent = sliderZone
+    
+    local valueStroke = Instance.new("UIStroke")
+    valueStroke.Parent = sliderValue
+    
+    local valueText = Instance.new("TextLabel")
+    valueText.Size = UDim2.new(1, 0, 1, 0)
+    valueText.BackgroundTransparency = 1
+    valueText.Text = tostring(default)
+    valueText.TextColor3 = Colors.Text
+    valueText.TextSize = 10
+    valueText.Font = Enum.Font.SourceSans
+    valueText.Parent = sliderValue
     
     local value = default
     local dragging = false
     
     local function updateSlider(input)
-        if not sliderLine then return end
-        
         local pos = math.clamp((input.Position.X - sliderLine.AbsolutePosition.X) / sliderLine.AbsoluteSize.X, 0, 1)
         value = math.floor(min + (max - min) * pos)
         
-        if sliderHandle then
-            sliderHandle.Position = UDim2.new(pos, 0, -0.75, 0)
-        end
-        
-        if valueText then
-            valueText.Text = tostring(value)
-        end
+        sliderHandle.Position = UDim2.new(pos, 0, -0.75, 0)
+        valueText.Text = tostring(value)
         
         if callback then
             callback(value)
         end
     end
     
-    if sliderLine then
-        sliderLine.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = true
-                updateSlider(input)
-            end
-        end)
-        
-        sliderLine.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = false
-            end
-        end)
-    end
+    sliderLine.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            updateSlider(input)
+        end
+    end)
+    
+    sliderLine.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
     
     UserInputService.InputChanged:Connect(function(input)
         if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
@@ -1169,41 +1207,65 @@ function Library:CreateBind(tab, column, name, default, callback)
     local parent = tabContent[column]
     if not parent then return end
     
-    local bindZone = BindZone:Clone()
+    local bindZone = Instance.new("Frame")
+    bindZone.Name = "BindZone"
     bindZone.Size = UDim2.new(1, -10, 0, 30)
+    bindZone.BackgroundTransparency = 1
     bindZone.Parent = parent
-    bindZone.Visible = true
     
-    local bindName = bindZone:FindFirstChild("BindName")
-    if bindName then bindName.Text = name end
+    local bindName = Instance.new("TextLabel")
+    bindName.Name = "BindName"
+    bindName.Size = UDim2.new(0, 80, 0, 15)
+    bindName.Position = UDim2.new(0, 0, 0, 7)
+    bindName.BackgroundTransparency = 1
+    bindName.Text = name
+    bindName.TextColor3 = Colors.Text
+    bindName.TextSize = 12
+    bindName.Font = Enum.Font.SourceSansBold
+    bindName.TextXAlignment = Enum.TextXAlignment.Left
+    bindName.Parent = bindZone
     
-    local bindFrame = bindZone:FindFirstChild("Bind")
-    local bindText = bindFrame and bindFrame:FindFirstChild("BindName")
+    local bindFrame = Instance.new("Frame")
+    bindFrame.Name = "Bind"
+    bindFrame.Size = UDim2.new(0, 49, 0, 15)
+    bindFrame.Position = UDim2.new(0.6, 0, 0, 7)
+    bindFrame.BackgroundColor3 = Colors.Background
+    bindFrame.Parent = bindZone
+    
+    local corner = Instance.new("UICorner")
+    corner.Parent = bindFrame
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Parent = bindFrame
+    
+    local bindText = Instance.new("TextLabel")
+    bindText.Name = "BindName"
+    bindText.Size = UDim2.new(1, 0, 1, 0)
+    bindText.BackgroundTransparency = 1
+    bindText.Text = default or "None"
+    bindText.TextColor3 = Colors.Text
+    bindText.TextSize = 12
+    bindText.Font = Enum.Font.SourceSansBold
+    bindText.Parent = bindFrame
     
     local currentKey = default or "None"
     local listening = false
     
-    if bindText then
-        bindText.Text = currentKey
-    end
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 1, 0)
+    button.BackgroundTransparency = 1
+    button.Text = ""
+    button.Parent = bindFrame
     
-    if bindFrame then
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, 0, 1, 0)
-        button.BackgroundTransparency = 1
-        button.Text = ""
-        button.Parent = bindFrame
-        
-        button.MouseButton1Click:Connect(function()
-            listening = true
-            if bindText then bindText.Text = "..." end
-        end)
-    end
+    button.MouseButton1Click:Connect(function()
+        listening = true
+        bindText.Text = "..."
+    end)
     
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if listening and input.UserInputType == Enum.UserInputType.Keyboard then
             currentKey = input.KeyCode.Name
-            if bindText then bindText.Text = currentKey end
+            bindText.Text = currentKey
             listening = false
             
             if callback then
@@ -1228,44 +1290,53 @@ function Library:CreateInput(tab, column, name, default, callback)
     local parent = tabContent[column]
     if not parent then return end
     
-    local inputZone = InputZone:Clone()
+    local inputZone = Instance.new("Frame")
+    inputZone.Name = "InputZone"
     inputZone.Size = UDim2.new(1, -10, 0, 40)
+    inputZone.BackgroundTransparency = 1
     inputZone.Parent = parent
-    inputZone.Visible = true
     
-    local inputName = inputZone:FindFirstChild("InputName")
-    if inputName then inputName.Text = name end
+    local inputName = Instance.new("TextLabel")
+    inputName.Name = "InputName"
+    inputName.Size = UDim2.new(1, 0, 0, 15)
+    inputName.Position = UDim2.new(0, 0, 0, 0)
+    inputName.BackgroundTransparency = 1
+    inputName.Text = name
+    inputName.TextColor3 = Colors.Text
+    inputName.TextSize = 10
+    inputName.Font = Enum.Font.SourceSans
+    inputName.TextXAlignment = Enum.TextXAlignment.Center
+    inputName.Parent = inputZone
     
-    local inputFrame = inputZone:FindFirstChild("Input")
-    local inputValue = inputFrame and inputFrame:FindFirstChild("InputValue")
+    local inputFrame = Instance.new("Frame")
+    inputFrame.Name = "Input"
+    inputFrame.Size = UDim2.new(1, 0, 0, 20)
+    inputFrame.Position = UDim2.new(0, 0, 0, 18)
+    inputFrame.BackgroundColor3 = Colors.Background
+    inputFrame.Parent = inputZone
     
-    if inputValue then
-        inputValue.Text = default or ""
-    end
+    local corner = Instance.new("UICorner")
+    corner.Parent = inputFrame
     
-    if inputFrame then
-        local textBox = Instance.new("TextBox")
-        textBox.Size = UDim2.new(1, 0, 1, 0)
-        textBox.BackgroundTransparency = 1
-        textBox.Text = default or ""
-        textBox.TextColor3 = Colors.Text
-        textBox.TextSize = 10
-        textBox.Font = Enum.Font.SourceSansBold
-        textBox.Parent = inputFrame
-        
-        textBox.FocusLost:Connect(function()
-            if callback then
-                callback(textBox.Text)
-            end
-        end)
-        
-        return {
-            SetValue = function(text)
-                textBox.Text = text
-            end
-        }
-    end
-end
+    local stroke = Instance.new("UIStroke")
+    stroke.Parent = inputFrame
+    
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(1, -10, 1, 0)
+    textBox.Position = UDim2.new(0, 5, 0, 0)
+    textBox.BackgroundTransparency = 1
+    textBox.Text = default or ""
+    textBox.TextColor3 = Colors.Text
+    textBox.TextSize = 10
+    textBox.Font = Enum.Font.SourceSansBold
+    textBox.ClearTextOnFocus = false
+    textBox.Parent = inputFrame
+    
+    textBox.FocusLost:Connect(function()
+        if callback then
+            callback(textBox.Text)
+        end
+    end)
 
 -- Dropdown
 function Library:CreateDropdown(tab, column, name, options, default, callback)
@@ -1275,68 +1346,111 @@ function Library:CreateDropdown(tab, column, name, options, default, callback)
     local parent = tabContent[column]
     if not parent then return end
     
-    local dropdown = button_Dropdown:Clone()
-    dropdown.Size = UDim2.new(1, -10, 0, 69)
-    dropdown.Parent = parent
-    dropdown.Visible = true
+    -- Create dropdown container
+    local dropdownContainer = Instance.new("Frame")
+    dropdownContainer.Name = "DropdownContainer"
+    dropdownContainer.Size = UDim2.new(1, -10, 0, 80)
+    dropdownContainer.BackgroundTransparency = 1
+    dropdownContainer.Parent = parent
     
-    local dropdownName = dropdown:FindFirstChild("DropdownName")
-    if dropdownName then dropdownName.Text = name end
+    local dropdownName = Instance.new("TextLabel")
+    dropdownName.Name = "DropdownName"
+    dropdownName.Size = UDim2.new(0, 76, 0, 20)
+    dropdownName.Position = UDim2.new(0, 0, 0, 0)
+    dropdownName.BackgroundTransparency = 1
+    dropdownName.Text = name
+    dropdownName.TextColor3 = Colors.Text
+    dropdownName.TextSize = 12
+    dropdownName.Font = Enum.Font.SourceSansBold
+    dropdownName.TextXAlignment = Enum.TextXAlignment.Left
+    dropdownName.Parent = dropdownContainer
     
-    local dropdownButton = dropdown:FindFirstChild("DropdownButton")
-    local selected = dropdownButton and dropdownButton:FindFirstChild("Selected")
-    local arrow = dropdownButton and dropdownButton:FindFirstChild("Arrow")
-    local dropdownZone = dropdown:FindFirstChild("DropdownZone")
+    local dropdownButton = Instance.new("Frame")
+    dropdownButton.Name = "DropdownButton"
+    dropdownButton.Size = UDim2.new(1, 0, 0, 24)
+    dropdownButton.Position = UDim2.new(0, 0, 0, 25)
+    dropdownButton.BackgroundColor3 = Colors.Background
+    dropdownButton.ClipsDescendants = true
+    dropdownButton.Parent = dropdownContainer
+    
+    local corner = Instance.new("UICorner")
+    corner.Parent = dropdownButton
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Parent = dropdownButton
+    
+    local selected = Instance.new("TextLabel")
+    selected.Name = "Selected"
+    selected.Size = UDim2.new(0, 96, 0, 13)
+    selected.Position = UDim2.new(0.05, 0, 0.2, 0)
+    selected.BackgroundTransparency = 1
+    selected.Text = default or options[1]
+    selected.TextColor3 = Colors.Text
+    selected.TextSize = 12
+    selected.Font = Enum.Font.SourceSansBold
+    selected.TextXAlignment = Enum.TextXAlignment.Left
+    selected.Parent = dropdownButton
+    
+    local arrow = Instance.new("ImageButton")
+    arrow.Name = "Arrow"
+    arrow.Size = UDim2.new(0, 10, 0, 10)
+    arrow.Position = UDim2.new(0.87, 0, 0.27, 0)
+    arrow.BackgroundTransparency = 1
+    arrow.Image = "rbxassetid://13116390649"
+    arrow.ImageColor3 = Colors.Text
+    arrow.Parent = dropdownButton
+    
+    local dropdownZone = Instance.new("Frame")
+    dropdownZone.Name = "DropdownZone"
+    dropdownZone.Size = UDim2.new(1, 0, 0, 0)
+    dropdownZone.Position = UDim2.new(0, 0, 1, 2)
+    dropdownZone.BackgroundTransparency = 1
+    dropdownZone.Visible = false
+    dropdownZone.Parent = dropdownButton
     
     local currentValue = default or options[1]
     local isOpen = false
     
-    if selected then
-        selected.Text = currentValue
-    end
-    
     -- Create option buttons
-    if dropdownZone then
-        for i, option in ipairs(options) do
-            local optionButton = Instance.new("TextButton")
-            optionButton.Size = UDim2.new(0, 127, 0, 20)
-            optionButton.Position = UDim2.new(0, 0, 0, (i - 1) * 22)
-            optionButton.BackgroundColor3 = Colors.Background
-            optionButton.Text = option
-            optionButton.TextColor3 = Colors.Text
-            optionButton.TextSize = 11
-            optionButton.Font = Enum.Font.SourceSansBold
-            optionButton.Parent = dropdownZone
-            
-            local corner = Instance.new("UICorner")
-            corner.Parent = optionButton
-            
-            optionButton.MouseButton1Click:Connect(function()
-                currentValue = option
-                if selected then selected.Text = option end
-                isOpen = false
-                dropdownButton.Size = UDim2.new(0, 127, 0, 24)
-                
-                if callback then
-                    callback(option)
-                end
-            end)
-        end
+    for i, option in ipairs(options) do
+        local optionButton = Instance.new("TextButton")
+        optionButton.Size = UDim2.new(1, 0, 0, 20)
+        optionButton.Position = UDim2.new(0, 0, 0, (i - 1) * 22)
+        optionButton.BackgroundColor3 = Colors.Background
+        optionButton.Text = option
+        optionButton.TextColor3 = Colors.Text
+        optionButton.TextSize = 11
+        optionButton.Font = Enum.Font.SourceSansBold
+        optionButton.Parent = dropdownZone
         
-        dropdownZone.Size = UDim2.new(0, 127, 0, #options * 22)
-    end
-    
-    if arrow then
-        arrow.MouseButton1Click:Connect(function()
-            isOpen = not isOpen
+        local optionCorner = Instance.new("UICorner")
+        optionCorner.Parent = optionButton
+        
+        optionButton.MouseButton1Click:Connect(function()
+            currentValue = option
+            selected.Text = option
+            isOpen = false
+            dropdownZone.Visible = false
+            dropdownButton.Size = UDim2.new(1, 0, 0, 24)
             
-            if isOpen then
-                dropdownButton.Size = UDim2.new(0, 127, 0, 24 + #options * 22)
-            else
-                dropdownButton.Size = UDim2.new(0, 127, 0, 24)
+            if callback then
+                callback(option)
             end
         end)
     end
+    
+    arrow.MouseButton1Click:Connect(function()
+        isOpen = not isOpen
+        dropdownZone.Visible = isOpen
+        
+        if isOpen then
+            dropdownButton.Size = UDim2.new(1, 0, 0, 24 + #options * 22)
+            dropdownContainer.Size = UDim2.new(1, -10, 0, 80 + #options * 22)
+        else
+            dropdownButton.Size = UDim2.new(1, 0, 0, 24)
+            dropdownContainer.Size = UDim2.new(1, -10, 0, 80)
+        end
+    end)
     
     return {
         SetValue = function(value)
