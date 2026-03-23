@@ -1904,7 +1904,7 @@ function Library:CreateWindow(config)
         -- Update tab button icon and name
         if tabButtons[tabType] then
             local tabButton = tabButtons[tabType]
-            local nameLabel = tabButton.name_tab_tex
+            local nameLabel = tabButton:FindFirstChild("name_tab_tex")
             
             -- Update tab name
             if nameLabel and tabName then
@@ -1912,9 +1912,9 @@ function Library:CreateWindow(config)
             end
             
             -- Update icon if provided
-            if iconId then
-                local iconButton = nameLabel.ImageButton or nameLabel.icon_tab
-                if iconButton then
+            if iconId and nameLabel then
+                local iconButton = nameLabel:FindFirstChild("ImageButton") or nameLabel:FindFirstChild("icon_tab")
+                if iconButton and iconButton:IsA("ImageButton") then
                     iconButton.Image = "rbxassetid://" .. tostring(iconId)
                 end
             end
@@ -1936,6 +1936,11 @@ function Library:CreateWindow(config)
             tabContents[tabType].Name = tabName
         end
         
+        -- Update column names
+        contentFrames.left["the name of the mini tab"]["Text_the name of the mini tab"].Text = tabName
+        contentFrames.middle["the name of the mini tab"]["Text_the name of the mini tab"].Text = tabName
+        contentFrames.right["the name of the mini tab"]["Text_the name of the mini tab"].Text = tabName
+        
         local Tab = {
             Name = tabName,
             Type = tabType,
@@ -1946,6 +1951,11 @@ function Library:CreateWindow(config)
         }
         
         table.insert(self.Tabs, Tab)
+        
+        -- Activate first tab
+        if #self.Tabs == 1 then
+            SwitchTab(tabType)
+        end
         
         function Tab:AddToggle(config)
             config = config or {}
