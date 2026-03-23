@@ -72,7 +72,7 @@ local function IsExecutorSupported()
 end
 
 if not IsExecutorSupported() then
-    warn(`[Library] Warning: Executor '{EXECUTOR_NAME}' is not officially supported. Supported: Wave, Swift, Velocity, Potassium, Seliware, Volcano, Volt`)
+    warn("[Library] Warning: Executor '" .. EXECUTOR_NAME .. "' is not officially supported. Supported: Wave, Swift, Velocity, Potassium, Seliware, Volcano, Volt")
     warn("[Library] The script may have undefined behavior or result in a ban!")
 end
 
