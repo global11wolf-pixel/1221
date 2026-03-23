@@ -1001,6 +1001,13 @@ end
 -- Make main GUI draggable
 MakeDraggable(main_gui)
 
+-- Content frames reference
+local contentFrames = {
+    left = main_gui.Frame["the left tab"],
+    middle = main_gui.Frame["the middle tab"],
+    right = main_gui.Frame["the right tab"]
+}
+
 -- Add ScrollingFrames to columns
 local function MakeColumnScrollable(column)
     local scrollFrame = Instance.new("ScrollingFrame")
@@ -1044,12 +1051,6 @@ local tabButtons = {
     misc = main_gui["TAB_RAZDEL"].TabMenu.Name_tab.tab_misc,
     settings = main_gui["TAB_RAZDEL"].TabMenu.Name_tab.tab_settings,
     aim = main_gui["TAB_RAZDEL"].TabMenu.Name_tab.tab_aim
-}
-
-local contentFrames = {
-    left = main_gui.Frame["the left tab"],
-    middle = main_gui.Frame["the middle tab"],
-    right = main_gui.Frame["the right tab"]
 }
 
 -- Tab switching function
@@ -1857,8 +1858,8 @@ function Library:CreateWindow(config)
     local windowName = config.Name or "Fluent UI"
     
     -- Update watermark with auto-detected executor
-    local watermarkText = main_gui.Parent.hud.watermark.TextLabel
-    watermarkText.Text = windowName .. " | " .. (config.Version or "v1.0") .. " | " .. (config.Executor or EXECUTOR_NAME)
+    local watermarkText = menu.hud.watermark.TextLabel
+    watermarkText.Text = windowName .. " | " .. (config.Version or "v1.0") .. " | Exec: " .. (config.Executor or EXECUTOR_NAME)
     
     local Window = {
         Tabs = {},
