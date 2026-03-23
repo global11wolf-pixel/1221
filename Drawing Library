@@ -1010,6 +1010,11 @@ local contentFrames = {
 
 -- Add ScrollingFrames to columns
 local function MakeColumnScrollable(column)
+    if not column then
+        warn("Column is nil in MakeColumnScrollable")
+        return nil
+    end
+    
     local scrollFrame = Instance.new("ScrollingFrame")
     scrollFrame.Name = "ScrollContent"
     scrollFrame.Size = UDim2.new(1, 0, 0.94, 0)
@@ -1031,9 +1036,9 @@ local function MakeColumnScrollable(column)
     return scrollFrame
 end
 
-local leftScroll = MakeColumnScrollable(contentFrames.left)
-local middleScroll = MakeColumnScrollable(contentFrames.middle)
-local rightScroll = MakeColumnScrollable(contentFrames.right)
+local leftScroll = contentFrames.left and MakeColumnScrollable(contentFrames.left)
+local middleScroll = contentFrames.middle and MakeColumnScrollable(contentFrames.middle)
+local rightScroll = contentFrames.right and MakeColumnScrollable(contentFrames.right)
 
 -- Update canvas size when adding elements
 local function UpdateCanvasSize(column)
@@ -1858,7 +1863,7 @@ function Library:CreateWindow(config)
     local windowName = config.Name or "Fluent UI"
     
     -- Update watermark with auto-detected executor
-    local watermarkText = menu.hud.watermark.TextLabel
+    local watermarkText = ScreenGui.menu.hud.watermark.TextLabel
     watermarkText.Text = windowName .. " | " .. (config.Version or "v1.0") .. " | Exec: " .. (config.Executor or EXECUTOR_NAME)
     
     local Window = {
@@ -2205,7 +2210,7 @@ function Library:CreateWindow(config)
         local duration = config.Duration or 3
         
         -- Update notification text
-        local notif = main_gui.Parent["Notification System"].NotifiList.Notification1
+        local notif = ScreenGui.menu["Notification System"].NotifiList.Notification1
         notif.NotifiText.Text = content
         notif.Visible = true
         
