@@ -1032,17 +1032,35 @@ local contentFrames = {
 -- Library API
 function Library:CreateWindow(config)
     config = config or {}
-    local windowName = config.Name or "Fluent UI"
-    local executorName = config.Executor or EXECUTOR_NAME
     
-    -- Update watermark
+    -- Update watermark (try multiple methods)
     local success, err = pcall(function()
         local watermarkFrame = ScreenGui.menu.hud.watermark
-        local watermarkText = watermarkFrame:FindFirstChildOfClass("TextLabel")
+        
+        -- Try TextLabel first (old version)
+        local watermarkText = watermarkFrame:FindFirstChild("TextLabel")
+        
+        -- If not found, try TextLabel_2 (new version)
+        if not watermarkText then
+            watermarkText = watermarkFrame:FindFirstChild("TextLabel_2")
+        end
+        
+        -- If still not found, try any TextLabel
+        if not watermarkText then
+            watermarkText = watermarkFrame:FindFirstChildOfClass("TextLabel")
+        end
         
         if watermarkText then
-            watermarkText.Text = windowName .. " | " .. (config.Version or "v1.0") .. " | Exec: " .. executorName
-            print("[Library] Watermark updated successfully!")
+            -- Use custom watermark text if provided, otherwise build from config
+            if config.WatermarkText then
+                watermarkText.Text = config.WatermarkText
+            else
+                local windowName = config.Name or "Fluent UI"
+                local version = config.Version or "v1.0"
+                local executor = config.Executor or EXECUTOR_NAME
+                watermarkText.Text = windowName .. " | " .. version .. " | Exec: " .. executor
+            end
+            print("[Library] Watermark updated successfully to:", watermarkText.Text)
         else
             warn("[Library] TextLabel not found in watermark")
         end
